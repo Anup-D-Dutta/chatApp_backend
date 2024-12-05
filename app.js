@@ -64,8 +64,8 @@ app.use(cookiesParser());
 
 
 // Routes declaration
-app.use('api/v1/user', userRoute);
-app.use('api/v1/chat', chatRoute);
+app.use('/api/v1/user', userRoute);
+app.use('/api/v1/chat', chatRoute);
 
 
 app.get("/", (req,res) => {
