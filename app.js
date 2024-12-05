@@ -58,9 +58,9 @@ cloudinary.config({
 app.set('io', io);
 
 //Using Middleware here
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookiesParser());
-app.use(cors(corsOptions));
 
 
 // Routes declaration
