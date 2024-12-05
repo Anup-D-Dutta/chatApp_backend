@@ -12,29 +12,45 @@ import { getotherMembers } from "../lib/helper.js"
 
 //Create a new user and save it to the database and save token in cookie
 const newUsers = TryCatch(async (req, res, next) => {
-
     const { name, username, password, bio } = req.body;
-
     const file = req.file;
 
-    if (!file) return next(new ErrorHandler("Plesse upload avatar "));
-
-    const result = await uploadFilesToCloudinary([file]);
-
-    const avatar = {
-        public_id: result[0].public_id,
-        url: result[0].url,
+    // Validate required fields
+    if (!name || !username || !password || !bio) {
+        return next(new ErrorHandler("All fields are required", 400));
     }
 
-    const user = await User.create({
-        name,
-        bio,
-        username,
-        password,
-        avatar,
-    });
+    // Check for avatar file
+    if (!file) {
+        return next(new ErrorHandler("Please upload an avatar", 400));
+    }
 
-    sendToken(res, user, 210, "User created");
+    try {
+        // Upload avatar to Cloudinary
+        console.log("Uploading file to Cloudinary...");
+        const result = await uploadFilesToCloudinary([file]);
+        console.log("Cloudinary result:", result);
+
+        const avatar = {
+            public_id: result[0].public_id,
+            url: result[0].url,
+        };
+
+        // Create new user
+        const user = await User.create({
+            name,
+            bio,
+            username,
+            password, // Ensure hashing in the User model
+            avatar,
+        });
+
+        // Send response with token
+        sendToken(res, user, 201, "User created successfully");
+    } catch (error) {
+        console.error("Error in newUsers:", error);
+        return next(new ErrorHandler("Failed to create user", 500));
+    }
 });
 
 
