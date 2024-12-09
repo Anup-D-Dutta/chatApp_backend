@@ -383,95 +383,6 @@ const sendAttachments = TryCatch(async (req, res, next) => {
     })
 })
 
-// const sendAttachments = TryCatch(async (req, res, next) => {
-//     try {
-//         console.count("API called");
-
-//         // Validate the incoming request body and files
-//         const { chatId } = req.body;
-//         const files = req.files || [];
-
-//         console.log("Received Request Body:", req.body);
-//         console.log("Uploaded Files:", files);
-
-//         // Check if chatId is provided
-//         if (!chatId) {
-//             console.error("Chat ID is missing in the request.");
-//             return next(new ErrorHandler("Chat ID is required.", 400));
-//         }
-
-//         // Validate file count
-//         if (files.length < 1) {
-//             return next(new ErrorHandler("Please upload at least one attachment.", 400));
-//         }
-//         if (files.length > 5) {
-//             return next(new ErrorHandler("You can upload a maximum of 5 files.", 400));
-//         }
-
-//         // Fetch chat and user information in parallel
-//         const [chat, me] = await Promise.all([
-//             Chat.findById(chatId),
-//             User.findById(req.user, "name"),
-//         ]);
-
-//         // Validate chat and user existence
-//         if (!chat) {
-//             console.error("Chat not found.");
-//             return next(new ErrorHandler("Chat not found.", 404));
-//         }
-
-//         if (!me) {
-//             console.error("User not found.");
-//             return next(new ErrorHandler("User not found.", 404));
-//         }
-
-//         // Upload files to Cloudinary or any cloud storage
-//         const attachments = await uploadFilesToCloudinary(files);
-
-//         console.log("Attachments uploaded:", attachments);
-
-//         // Prepare the message payload
-//         const messageForDB = {
-//             content: "",
-//             attachments,
-//             sender: me._id,
-//             chat: chatId,
-//         };
-
-//         const messageForRealTime = {
-//             ...messageForDB,
-//             sender: {
-//                 _id: me._id,
-//                 name: me.name,
-//             },
-//         };
-
-//         // Save the message to the database
-//         const message = await Message.create(messageForDB);
-
-//         // Emit events for real-time updates
-//         emitEvent(req, NEW_ATTACHMENT, chat.members, {
-//             message: messageForRealTime,
-//             chatId,
-//         });
-
-//         emitEvent(req, NEW_MESSAGE_ALERT, chat.members, {
-//             chatId,
-//         });
-
-//         // Send the response
-//         return res.status(200).json({
-//             success: true,
-//             message,
-//         });
-//     } catch (err) {
-//         // Catch unexpected errors and pass them to the error handler
-//         console.error("Error in sendAttachments:", err.message);
-//         return next(new ErrorHandler(err.message || "Internal Server Error", 500));
-//     }
-// });
-
-
 
 
 const getChatDetails = TryCatch(async (req, res, next) => {
@@ -592,37 +503,6 @@ const deleteChat = TryCatch(async (req, res, next) => {
 
 });
 
-// const getMessages = TryCatch(async (req, res, next) => {
-
-//     const chatId = req.params.id;
-
-//     const { page = 1 } = req.query;
-
-//     const resultPerPage = 20;
-
-//     const skip = (page - 1) * resultPerPage;
-
-
-//     const [messages, totalMessagesCount] = await Promise.all([Message.find(
-//         { chat: chatId })
-//         .sort({ created: -1 })
-//         .skip(skip)
-//         .limit(resultPerPage)
-//         .populate("sender", "name") // We can show name with avatar like("name avatar")
-//         .lean(),
-//     Message.countDocuments({ chat: chatId })
-//     ]);
-
-//     console.log(totalMessagesCount);
-
-//     const totalPagers = Math.ceil(totalMessagesCount / resultPerPage) || 0;
-
-//     return res.status(200).json({
-//         success: true,
-//         messages: messages.reverse(),
-//         totalPagers,
-//     });
-// })
 
 
 const getMessages = TryCatch(async (req, res, next) => {

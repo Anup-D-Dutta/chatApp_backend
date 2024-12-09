@@ -72,16 +72,11 @@ app.get("/", (req,res) => {
     res.send("Hello")
 })
 
-app.use(errorMiddleware) 
-
-server.listen(port, () =>{
-    console.log(`Server started at ${port} in ${envMode} Mode`)
-})
-
-
 io.use((socket,next) => {
 
-    cookiesParser()(socket.request, socket.request.res, async(error) =>{
+    cookiesParser()(
+        socket.request, 
+        socket.request.res, async(error) =>{
         await socketAuthenticator(error, socket, next)
     })
 })
@@ -152,6 +147,13 @@ io.on("connection", (socket) => {
     });
 });
 
+
+
+app.use(errorMiddleware) 
+
+server.listen(port, () =>{
+    console.log(`Server started at ${port} in ${envMode} Mode`)
+})
 
 
 

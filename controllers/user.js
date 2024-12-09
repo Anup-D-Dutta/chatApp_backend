@@ -69,7 +69,7 @@ const login = TryCatch(async (req, res, next) => {
     const isMatch = await compare(password, user.password);
 
     if (!isMatch) {
-        return next(new ErrorHandler("Invalid password", 404));
+        return next(new ErrorHandler("Invalid Username or Password", 404));
     }
 
     sendToken(res, user, 200, `welcome Back, ${user.name}`);
@@ -90,49 +90,6 @@ const getMyProfile = TryCatch(async (req, res, next) => {
         user
     });
 });
-
-
-
-
-// const getMyProfile = TryCatch(async (req, res) => {
-//     try {
-//         // Log the req.user value
-//         console.log("req.user:", req.user);
-
-//         // Check if req.user is populated
-//         if (!req.user) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "User ID is missing in request",
-//             });
-//         }
-
-//         // Fetch user from database
-//         const user = await User.findById(req.user);
-
-//         // Check if user was found
-//         if (!user) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: "User not found",
-//             });
-//         }
-
-//         // Send successful response
-//         res.status(200).json({
-//             success: true,
-//             user,
-//         });
-//     } catch (error) {
-//         console.error("Error fetching profile:", error);
-//         res.status(500).json({
-//             success: false,
-//             message: "An error occurred while fetching the profile",
-//         });
-//     }
-// });
-
-
 
 
 const logout = TryCatch(async (req, res) => {
@@ -173,39 +130,6 @@ const searchUser = TryCatch(async (req, res, next) => {
 });
 
 
-// const sendFriendRequest = TryCatch(async (req, res, next) => {
-
-//     const { userId } = req.body;
-//     console.log('Incoming request body:', req.body);
-
-
-//     // Check if a friend request between these users already exists
-//     const request = await Request.findOne({
-//         $or: [
-//             {
-//                 sender: req.user,
-//                 receiver: userId,
-//             },
-//             {
-//                 sender: userId,
-//                 receiver: req.user,
-//             }
-//         ]
-//     });
-//     if (request) return next(new ErrorHandler("Request already sent", 400));
-
-//     await Request.create({
-//         sender: req.user,
-//         receiver: userId
-//     })
-
-//     emitEvent(req, NEW_REQUEST, [userId])
-
-//     return res.status(200).json({
-//         success: true,
-//         message: "Friend request sent successfully",
-//     });
-// });
 
 const sendFriendRequest = TryCatch(async (req, res, next) => {
     const { userId } = req.body;
