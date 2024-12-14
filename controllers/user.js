@@ -156,7 +156,13 @@ const sendFriendRequest = TryCatch(async (req, res, next) => {
             }
         ]
     });
-    if (request) return next(new ErrorHandler("Request already sent", 400));
+    if (request){
+        return res.status(400).json({
+            success: false,
+            message: "Request already sent",
+        });
+        // return next(new ErrorHandler("Request already sent", 400));
+    }
 
     await Request.create({
         sender: req.user, 
