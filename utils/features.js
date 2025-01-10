@@ -13,8 +13,8 @@ const cookieOption = {
 
 const connectDB = (url) => {
     mongoose
-        .connect(url, { dbName: 'Messenger' })
-        // .connect(url, { dbName: 'TalkSync' })
+        // .connect(url, { dbName: 'Messenger' })
+        .connect(url, { dbName: 'TalkSync' })
         .then((data) => console.log(`Connected to DB: ${data.connection.host}`))
         .catch((error) => {
             throw error;
