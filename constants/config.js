@@ -16,6 +16,7 @@
 const allowedOrigins = [
     "http://localhost:5174",
     "http://localhost:5173",
+    "https://chat-app-frontend-livid-eight.vercel.app/login"
 ];
 
 if (process.env.CLIENT_URL) {
