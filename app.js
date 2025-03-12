@@ -155,7 +155,7 @@ server.listen(port, () =>{
     console.log(`Server started at ${port} in ${envMode} Mode`)
 })
 
-
+export default app;
 
 export {
     envMode,
