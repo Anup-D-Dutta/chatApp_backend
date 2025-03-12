@@ -31,9 +31,24 @@ dotenv.config({
 
 const app  = express();
 const server = createServer(app);
+
+
+// const io = new Server(server, {
+//     cors:corsOptions
+// })
+
 const io = new Server(server, {
-    cors:corsOptions
-})
+    cors: {
+        origin: [
+            "http://localhost:5174",
+            "http://localhost:5173",
+            "https://chat-app-frontend-livid-eight.vercel.app",
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
 
 
 const mongoURI = process.env.MONGO_URI;
@@ -61,6 +76,7 @@ app.set('io', io);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookiesParser());
+
 
 
 // Routes declaration
