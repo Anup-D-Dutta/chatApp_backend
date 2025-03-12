@@ -42,7 +42,7 @@ const io = new Server(server, {
         origin: [
             "http://localhost:5174",
             "http://localhost:5173",
-            "https://chat-app-frontend-livid-eight.vercel.app",
+            "https://chat-app-frontend-ovcydvttz-anup-duttas-projects.vercel.app/login",
         ],
         methods: ["GET", "POST"],
         credentials: true
