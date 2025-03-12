@@ -230,9 +230,23 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookiesParser());
 
+// const io = new Server(server, {
+//     cors: corsOptions
+// });
+
 const io = new Server(server, {
-    cors: corsOptions
+    cors: {
+        origin: [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "https://chat-app-frontend-livid-eight.vercel.app",
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+    transports: ["websocket", "polling"], // ✅ Allow both transports
 });
+
 
 const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 4000;

@@ -13,17 +13,15 @@
 
 // export{corsOptions, MESSAGE_TOKRN}
 
-const allowedOrigins = [
-    "http://localhost:5174",
-    "http://localhost:5173",
-    "https://chat-app-frontend-ovcydvttz-anup-duttas-projects.vercel.app/login"
-];
 
-if (process.env.CLIENT_URL) {
-    allowedOrigins.push(process.env.CLIENT_URL);
-} else {
-    console.warn("🚨 CLIENT_URL is missing in environment variables!");
-}
+
+import cors from "cors";
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://chat-app-frontend-livid-eight.vercel.app",
+];
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -38,7 +36,9 @@ const corsOptions = {
     allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+// app.use(cors(corsOptions));
+
+
 const MESSAGE_TOKRN = "message-Token"
 
-
-export { corsOptions, MESSAGE_TOKRN };
+export{corsOptions, MESSAGE_TOKRN}
