@@ -42,10 +42,10 @@ const io = new Server(server, {
         origin: [
             "http://localhost:5174",
             "http://localhost:5173",
-            "https://chat-app-frontend-ovcydvttz-anup-duttas-projects.vercel.app/login",
-            "https://chat-app-frontend-git-master-anup-duttas-projects.vercel.app/login",
-            "https://chat-app-frontend-nqbig3g45-anup-duttas-projects.vercel.app/login",
-            "https://talksyncc.netlify.app/login"
+            "https://chat-app-frontend-ovcydvttz-anup-duttas-projects.vercel.app",
+            "https://chat-app-frontend-git-master-anup-duttas-projects.vercel.app",
+            "https://chat-app-frontend-nqbig3g45-anup-duttas-projects.vercel.app",
+            "https://talksyncc.netlify.app"
         ],
         methods: ["GET", "POST"],
         credentials: true
