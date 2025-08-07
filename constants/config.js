@@ -3,7 +3,8 @@ const corsOptions = {
     origin: [
         "http://localhost:5174",
         "http://localhost:5173",
-        "https://talksynccc.netlify.app/login"
+        "https://talksynccc.netlify.app/login",
+        "https://talksynccc.netlify.app"
     ].filter(Boolean), // Removes undefined values
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true, // Allow cookies
