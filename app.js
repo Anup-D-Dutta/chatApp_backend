@@ -44,7 +44,8 @@ const io = new Server(server, {
             "http://localhost:5173",
             "https://chat-app-frontend-ovcydvttz-anup-duttas-projects.vercel.app/login",
             "https://chat-app-frontend-git-master-anup-duttas-projects.vercel.app/login",
-            "https://chat-app-frontend-nqbig3g45-anup-duttas-projects.vercel.app/login"
+            "https://chat-app-frontend-nqbig3g45-anup-duttas-projects.vercel.app/login",
+            "https://talksyncc.netlify.app/login"
         ],
         methods: ["GET", "POST"],
         credentials: true
