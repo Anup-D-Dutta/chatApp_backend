@@ -11,6 +11,8 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'], // Headers to allow
 };
 
-const MESSAGE_TOKRN = "message-Token";
+// const MESSAGE_TOKRN = "message-Token";
+const MESSAGE_TOKEN = "message-Token";
 
-export { corsOptions, MESSAGE_TOKRN };
+
+export { corsOptions, MESSAGE_TOKEN };
