@@ -42,26 +42,61 @@ const newGroupChat = TryCatch(async (req, res, next) => {
 
 //  getMyChats
 
-const getMyChats = TryCatch(async (req, res, next) => {
-    const chats = await Chat.find({ members: req.user }).populate(
-        "members",
-        "name avatar"
-    );
+// const getMyChats = TryCatch(async (req, res, next) => {
+//     const chats = await Chat.find({ members: req.user }).populate(
+//         "members",
+//         "name avatar"
+//     );
 
-    // Transforming each chat
-    const transformChat = chats.map(({ _id, name, members, groupChat }) => {
+//     // Transforming each chat
+//     const transformChat = chats.map(({ _id, name, members, groupChat }) => {
+//         const otherMember = getotherMembers(members, req.user) || {};
+
+//         return {
+//             _id,
+//             groupChat,
+//             avatar: groupChat
+//                 // ? members.slice(0, 3).map(({ avatar }) => avatar?.url || "defaultAvatarUrl") // Ensure avatar exists
+//                 // : [otherMember.avatar?.url || "defaultAvatarUrl"], // Use a default if avatar is undefined
+
+//                 ? members.slice(0, 3).map(({ avatar }) => avatar?.url)
+//                 : [otherMember.avatar?.url],
+
+//             name: groupChat ? name : otherMember.name,
+//             members: members.reduce((prev, curr) => {
+//                 if (curr._id.toString() !== req.user.toString()) {
+//                     prev.push(curr._id);
+//                 }
+//                 return prev;
+//             }, []),
+//         };
+//     });
+
+//     return res.status(200).json({
+//         success: true,
+//         chats: transformChat,
+//     });
+// });
+
+const getMyChats = TryCatch(async (req, res, next) => {
+    const chats = await Chat.find({ members: req.user })
+        .populate("members", "name avatar")
+        .populate({
+            path: "latestMessage",
+            select: "content sender createdAt",
+            populate: { path: "sender", select: "name avatar" }
+        })
+        .sort({ updatedAt: -1 }); // Most recent first
+
+    const transformChat = chats.map(({ _id, name, members, groupChat, latestMessage }) => {
         const otherMember = getotherMembers(members, req.user) || {};
 
         return {
             _id,
             groupChat,
             avatar: groupChat
-                // ? members.slice(0, 3).map(({ avatar }) => avatar?.url || "defaultAvatarUrl") // Ensure avatar exists
-                // : [otherMember.avatar?.url || "defaultAvatarUrl"], // Use a default if avatar is undefined
-
                 ? members.slice(0, 3).map(({ avatar }) => avatar?.url)
                 : [otherMember.avatar?.url],
-
             name: groupChat ? name : otherMember.name,
             members: members.reduce((prev, curr) => {
                 if (curr._id.toString() !== req.user.toString()) {
@@ -69,6 +104,7 @@ const getMyChats = TryCatch(async (req, res, next) => {
                 }
                 return prev;
             }, []),
+            latestMessage: latestMessage?.content || ""
         };
     });
 
@@ -293,7 +329,7 @@ const leaveMembers = TryCatch(async (req, res, next) => {
         (members) => members.toString() !== req.user.toString()
     )
 
-    if (remainingMembers.length < 3){
+    if (remainingMembers.length < 3) {
         return next(new ErrorHandler("Group must have at least 3 members", 400));
     }
 
@@ -326,26 +362,74 @@ const leaveMembers = TryCatch(async (req, res, next) => {
 })
 
 
+// const sendAttachments = TryCatch(async (req, res, next) => {
+
+//     const { chatId } = req.body;
+
+//     console.log(chatId)
+
+
+//     const [chat, me] = await Promise.all([
+//         Chat.findById(chatId),
+//         User.findById(req.user, 'name')
+//     ]);
+
+//     console.log(chat);
+
+//     if (!chat) return next(new ErrorHandler("Chat not found", 404));
+
+//     const files = req.files || [];
+
+//     // console.log(files)
+
+//     if (files.length < 1) return next(new ErrorHandler("Please Upload Attachment", 400));
+
+//     const attachments = await uploadFilesToCloudinary(files);
+
+//     const messageForDB = {
+//         content: "",
+//         attachments,
+//         sender: me._id,
+//         chat: chatId,
+//     };
+
+//     const messageForRealTime = {
+//         ...messageForDB,
+//         sender: {
+//             _id: me._id,
+//             name: me.name,
+//         },
+//     };
+
+//     const message = await Message.create(messageForDB);
+
+
+//     emitEvent(req, NEW_MESSAGE, chat.members, {
+//         message: messageForRealTime,
+//         chatId,
+//     })
+
+
+//     emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId, })
+
+
+//     return res.status(200).json({
+//         success: true,
+//         message,
+//     })
+// })
+
 const sendAttachments = TryCatch(async (req, res, next) => {
-
     const { chatId } = req.body;
-
-    console.log(chatId)
-
 
     const [chat, me] = await Promise.all([
         Chat.findById(chatId),
         User.findById(req.user, 'name')
     ]);
 
-    console.log(chat);
-    
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
     const files = req.files || [];
-
-    // console.log(files)
-
     if (files.length < 1) return next(new ErrorHandler("Please Upload Attachment", 400));
 
     const attachments = await uploadFilesToCloudinary(files);
@@ -367,21 +451,22 @@ const sendAttachments = TryCatch(async (req, res, next) => {
 
     const message = await Message.create(messageForDB);
 
+    // ✅ Update latestMessage in chat
+    chat.latestMessage = message._id;
+    await chat.save();
 
     emitEvent(req, NEW_MESSAGE, chat.members, {
         message: messageForRealTime,
         chatId,
-    })
+    });
 
-
-    emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId, })
-
+    emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
 
     return res.status(200).json({
         success: true,
         message,
-    })
-})
+    });
+});
 
 
 
