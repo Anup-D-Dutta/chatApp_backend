@@ -11,46 +11,96 @@ import { getotherMembers } from "../lib/helper.js"
 
 
 //Create a new user and save it to the database and save token in cookie
+// const newUsers = TryCatch(async (req, res, next) => {
+//     const { name, username, password, bio } = req.body;
+//     const file = req.file;
+
+//     // Validate required fields
+//     if (!name || !username || !password || !bio) {
+//         return next(new ErrorHandler("All fields are required", 400));
+//     }
+
+//     // Check for avatar file
+//     if (!req.file) {
+//         return next(new ErrorHandler("Please upload an avatar", 400));
+//     }
+
+//     try {
+//         // Upload avatar to Cloudinary
+//         console.log("Uploading file to Cloudinary...");
+//         const result = await uploadFilesToCloudinary([file]);
+//         console.log("Cloudinary result:", result);
+
+//         const avatar = {
+//             public_id: result[0].public_id,
+//             url: result[0].url,
+//         };
+
+//         // Create new user
+//         const user = await User.create({
+//             name,
+//             bio,
+//             username,
+//             password, // Ensure hashing in the User model
+//             avatar,
+//         });
+
+//         // Send response with token
+//         sendToken(res, user, 201, "User created successfully");
+//     } catch (error) {
+//         console.error("Error in newUsers:", error);
+//         return next(new ErrorHandler("Failed to create user", 500));
+//     }
+// });
+
 const newUsers = TryCatch(async (req, res, next) => {
     const { name, username, password, bio } = req.body;
     const file = req.file;
 
-    // Validate required fields
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+        return next(new ErrorHandler("Username already exists", 400));
+    }
+
+
     if (!name || !username || !password || !bio) {
         return next(new ErrorHandler("All fields are required", 400));
     }
 
-    // Check for avatar file
     if (!file) {
         return next(new ErrorHandler("Please upload an avatar", 400));
     }
 
     try {
-        // Upload avatar to Cloudinary
-        console.log("Uploading file to Cloudinary...");
-        const result = await uploadFilesToCloudinary([file]);
-        console.log("Cloudinary result:", result);
+        // Check duplicate before upload
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return next(new ErrorHandler("Username already exists", 400));
+        }
 
+        const result = await uploadFilesToCloudinary([file]);
         const avatar = {
             public_id: result[0].public_id,
             url: result[0].url,
         };
 
-        // Create new user
         const user = await User.create({
             name,
             bio,
             username,
-            password, // Ensure hashing in the User model
+            password,
             avatar,
         });
 
-        // Send response with token
         sendToken(res, user, 201, "User created successfully");
     } catch (error) {
+        if (error.code === 11000) {
+            return next(new ErrorHandler("Username already exists", 400));
+        }
         console.error("Error in newUsers:", error);
         return next(new ErrorHandler("Failed to create user", 500));
     }
+
 });
 
 
@@ -59,7 +109,7 @@ const newUsers = TryCatch(async (req, res, next) => {
 const login = TryCatch(async (req, res, next) => {
 
     const { username, password } = req.body;
-    
+
     const user = await User.findOne({ username }).select("+password");
 
     if (!user) {
@@ -147,7 +197,7 @@ const sendFriendRequest = TryCatch(async (req, res, next) => {
     const request = await Request.findOne({
         $or: [
             {
-                sender: req.user, 
+                sender: req.user,
                 receiver: userId,
             },
             {
@@ -156,7 +206,7 @@ const sendFriendRequest = TryCatch(async (req, res, next) => {
             }
         ]
     });
-    if (request){
+    if (request) {
         return res.status(400).json({
             success: false,
             message: "Request already sent",
@@ -165,7 +215,7 @@ const sendFriendRequest = TryCatch(async (req, res, next) => {
     }
 
     await Request.create({
-        sender: req.user, 
+        sender: req.user,
         receiver: userId
     });
 
